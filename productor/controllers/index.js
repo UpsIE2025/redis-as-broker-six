@@ -1,7 +1,6 @@
 const { redis, checkRedisAvailability } = require('../clients/redis_client');
 const { v4: uuidv4 } = require('uuid'); // Para generar claves únicas
 
-// Endpoint para guardar un mensaje en Redis
 const setMessage = async (req, res) => {
     try {
         const { message } = req.body;
@@ -28,18 +27,14 @@ const setMessage = async (req, res) => {
     }
 };
 
-// Endpoint para obtener todos los mensajes (opcional, si necesitas recuperar los mensajes)
 const getAllMessages = async (req, res) => {
     try {
         const isRedisAvailable = await checkRedisAvailability();
         if (!isRedisAvailable) {
             return res.status(500).json({ error: 'Servicio Redis no disponible en este momento' });
         }
-
-        // Obtener todas las claves que comienzan con "message:"
         const keys = await redis.keys('message:*');
 
-        // Obtener los valores de todas las claves
         const messages = await redis.mget(keys);
 
         res.json({ messages });
@@ -61,7 +56,6 @@ const getLastMessage = async (req, res) => {
             return res.status(404).json({ error: 'No hay mensajes disponibles' });
         }
 
-        // Obtener la última clave
         const lastKey = keys[keys.length - 1];
 
         // Obtener el valor del último mensaje
