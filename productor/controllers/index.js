@@ -1,5 +1,5 @@
 const { redis, checkRedisAvailability } = require('../clients/redis_client');
-const { v4: uuidv4 } = require('uuid'); // Para generar claves únicas
+const { v4: uuidv4 } = require('uuid');
 
 const setMessage = async (req, res) => {
     try {
@@ -7,17 +7,12 @@ const setMessage = async (req, res) => {
         if (!message) {
             return res.status(400).json({ error: 'Se requiere un mensaje' });
         }
-
         const isRedisAvailable = await checkRedisAvailability();
         if (!isRedisAvailable) {
             return res.status(500).json({ error: 'Servicio Redis no disponible en este momento' });
         }
         const key = `message:${uuidv4()}`;
-
-        // Guardar el mensaje en Redis usando el cliente de publicaciones
         await redis.set(key, message);
-
-        // Publicar el mensaje en el canal Redis
         await redis.publish(process.env.REDIS_CHANEL || 'msoft', message);
 
         res.json({ message: `Mensaje guardado correctamente con clave: ${key}` });
@@ -57,8 +52,6 @@ const getLastMessage = async (req, res) => {
         }
 
         const lastKey = keys[keys.length - 1];
-
-        // Obtener el valor del último mensaje
         const lastMessage = await redis.get(lastKey);
 
         res.json({ message: lastMessage });
