@@ -20,5 +20,15 @@ services:
       - "8081:8081"
     depends_on:
       - redis
+  consumer:
+    build:
+      context: ./redis-consumer
+      dockerfile: Dockerfile
+    container_name: redis-consumer
+    depends_on:
+      - redis
+    environment:
+      - SPRING_REDIS_HOST=redis
+      - SPRING_REDIS_PORT=6379
 volumes:
   redis_data:
